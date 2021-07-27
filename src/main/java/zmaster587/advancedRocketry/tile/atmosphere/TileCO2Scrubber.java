@@ -2,11 +2,8 @@ package zmaster587.advancedRocketry.tile.atmosphere;
 
 import net.minecraft.item.ItemStack;
 import zmaster587.advancedRocketry.api.AdvancedRocketryItems;
-<<<<<<< HEAD
 import zmaster587.advancedRocketry.api.AdvancedRocketryTileEntityType;
-=======
 import zmaster587.libVulpes.tile.IComparatorOverride;
->>>>>>> origin/feature/nuclearthermalrockets
 import zmaster587.libVulpes.tile.multiblock.hatch.TileInventoryHatch;
 
 public class TileCO2Scrubber extends TileInventoryHatch implements IComparatorOverride {
@@ -29,17 +26,10 @@ public class TileCO2Scrubber extends TileInventoryHatch implements IComparatorOv
 	public boolean useCharge() {
 		ItemStack stack = getStackInSlot(0);
 		if(!stack.isEmpty() && stack.getItem() == AdvancedRocketryItems.itemCarbonScrubberCartridge) {
-			
-<<<<<<< HEAD
+
 			if(stack.getDamage() != stack.getMaxDamage()) {
 				stack.setDamage(stack.getDamage() + 1);
-				//this.markDirty();
-=======
-			if(stack.getItemDamage() != stack.getMaxDamage()) {
-				stack.setItemDamage(stack.getItemDamage() + 1);
-				if ((32766 - stack.getItemDamage() + 2184)/2185 != (32766 - stack.getItemDamage() + 1 + 2184)/2185)
-				    this.markDirty();
->>>>>>> origin/feature/nuclearthermalrockets
+				this.markDirty();
 				return true;
 			}
 		}
@@ -50,7 +40,7 @@ public class TileCO2Scrubber extends TileInventoryHatch implements IComparatorOv
 	public int getComparatorOverride() {
 		ItemStack stack = getStackInSlot(0);
 		if (!stack.isEmpty()) {
-			return (32766 - stack.getItemDamage() + 2184)/2185;
+			return (32766 - stack.getDamage() + 2184)/2185;
 		}
 		return 0;
 	}

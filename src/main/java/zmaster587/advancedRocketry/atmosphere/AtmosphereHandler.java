@@ -62,7 +62,7 @@ public class AtmosphereHandler {
 	public static void registerWorld(World world) {
 		ResourceLocation dimId = ZUtils.getDimensionIdentifier(world);
 		//If O2 is allowed and
-		DimensionProperties dimProp = DimensionManager.getInstance().getDimensionProperties(dimId);
+		DimensionProperties dimProp = (DimensionProperties) DimensionManager.getInstance().getDimensionProperties(dimId);
 		if(ARConfiguration.getCurrentConfig().enableOxygen.get() && dimProp.hasSurface() && (ARConfiguration.getCurrentConfig().overrideGCAir.get() || dimId != ARConfiguration.getCurrentConfig().MoonId || dimProp.isNativeDimension)) {
 			dimensionOxygen.put(dimId, new AtmosphereHandler(dimId));
 			MinecraftForge.EVENT_BUS.register(dimensionOxygen.get(dimId));
@@ -182,30 +182,9 @@ public class AtmosphereHandler {
 			//Block handling for what should and shouldn't exist or what should be on fire
 			//Things should be on fire
 			if (handler.getAtmosphereType(bpos) == AtmosphereType.SUPERHEATED) {
-<<<<<<< HEAD
 				if(world.getBlockState(bpos).getMaterial().isFlammable()) {
 				} else if (world.getBlockState(bpos).getMaterial() == Material.WEB) {
 					world.setBlockState(bpos, Blocks.FIRE.getDefaultState());
-=======
-				if(world.getBlockState(bpos).getBlock().isLeaves(world.getBlockState(bpos), world, bpos)) {
-					world.setBlockState(bpos, Blocks.AIR.getDefaultState());
-				} else if (world.getBlockState(bpos).getMaterial() == Material.CACTUS) {
-					world.setBlockState(bpos, Blocks.FIRE.getDefaultState());
-				} else if (world.getBlockState(bpos).getMaterial() == Material.PLANTS) {
-					world.setBlockState(bpos, Blocks.FIRE.getDefaultState());
-				} else if (world.getBlockState(bpos).getMaterial() == Material.TALL_PLANTS) {
-					world.setBlockState(bpos, Blocks.FIRE.getDefaultState());
-				} else if (world.getBlockState(bpos).getBlock().isLeaves(world.getBlockState(bpos), world, bpos)) {
-					world.setBlockState(bpos, Blocks.FIRE.getDefaultState());
-				}else if (world.getBlockState(bpos).getMaterial() == Material.WOOD) {
-					world.setBlockState(bpos, Blocks.FIRE.getDefaultState());
-				} else if (world.getBlockState(bpos).getMaterial() == Material.WEB) {
-					world.setBlockState(bpos, Blocks.FIRE.getDefaultState());
-				} else if (world.getBlockState(bpos).getMaterial() == Material.CARPET) {
-					world.setBlockState(bpos, Blocks.FIRE.getDefaultState());
-				} else if (world.getBlockState(bpos).getMaterial() == Material.CLOTH) {
-					world.setBlockState(bpos, Blocks.FIRE.getDefaultState());
->>>>>>> origin/feature/nuclearthermalrockets
 				} else if (world.getBlockState(bpos).getMaterial() == Material.GOURD) {
 					world.setBlockState(bpos, Blocks.FIRE.getDefaultState());
 				}
@@ -228,11 +207,7 @@ public class AtmosphereHandler {
 			}
 			//Gasses should automatically vaporize and dissipate
 			if (handler.getAtmosphereType(bpos) == AtmosphereType.VACUUM) {
-<<<<<<< HEAD
 				 if (world.getBlockState(bpos).getMaterial() == Material.WATER && !(world.getBlockState(bpos).getBlock() instanceof FlowingFluidBlock)) {
-=======
-				 if (world.getBlockState(bpos).getMaterial() == Material.WATER && world.getBlockState(bpos).getBlock() instanceof IFluidBlock) {
->>>>>>> origin/feature/nuclearthermalrockets
 					 IFluidBlock fluidblock = (IFluidBlock)world.getBlockState(bpos).getBlock();
 					 if (fluidblock.getFluid().getAttributes().isGaseous())
 						 world.setBlockState(bpos, Blocks.AIR.getDefaultState());
@@ -296,7 +271,7 @@ public class AtmosphereHandler {
 	}
 	
 	/**
-	 * @param dimNumber dimension number for which to get the oxygenhandler
+	 * @param world dimension number for which to get the oxygenhandler
 	 * @return the oxygen handler for the planet or null if none exists
 	 */
 	public static AtmosphereHandler getOxygenHandler(World world) {
@@ -487,7 +462,7 @@ public class AtmosphereHandler {
 	 */
 	@Nonnull
 	public IAtmosphere getAtmosphereType(@Nonnull IBlobHandler handler) {
-		if(ARConfiguration.getCurrentConfig().enableOxygen) {
+		if(ARConfiguration.getCurrentConfig().enableOxygen.get()) {
 			IAtmosphere atmosphere = (IAtmosphere) blobs.get(handler).getData();
 			if(atmosphere != null)
 				return atmosphere;

@@ -17,11 +17,8 @@ import com.mojang.blaze3d.vertex.IVertexBuilder;
 
 import zmaster587.advancedRocketry.backwardCompat.ModelFormatException;
 import zmaster587.advancedRocketry.backwardCompat.WavefrontObject;
-<<<<<<< HEAD
 import zmaster587.advancedRocketry.tile.multiblock.machine.TileRollingMachine;
 import zmaster587.libVulpes.api.material.MaterialRegistry;
-=======
->>>>>>> origin/feature/nuclearthermalrockets
 import zmaster587.libVulpes.block.RotatableBlock;
 import zmaster587.libVulpes.render.RenderHelper;
 import zmaster587.libVulpes.tile.multiblock.TileMultiblockMachine;
@@ -29,12 +26,8 @@ import zmaster587.libVulpes.tile.multiblock.TileMultiblockMachine;
 public class RendererRollingMachine extends TileEntityRenderer<TileRollingMachine> {
 	WavefrontObject model;
 
-<<<<<<< HEAD
 	ResourceLocation texture = new ResourceLocation("advancedrocketry:textures/models/rollingmachine.png");
 	private static int bodyList;
-=======
-	ResourceLocation texture = new ResourceLocation("advancedrocketry:textures/models/rollingMachine.png");
->>>>>>> origin/feature/nuclearthermalrockets
 
 	public RendererRollingMachine(TileEntityRendererDispatcher tile) {
 		super(tile);
@@ -43,13 +36,6 @@ public class RendererRollingMachine extends TileEntityRenderer<TileRollingMachin
 		} catch (ModelFormatException e) {
 			e.printStackTrace();
 		}
-<<<<<<< HEAD
-=======
-		int bodyList;
-		GL11.glNewList(bodyList = GL11.glGenLists(1), GL11.GL_COMPILE);
-		model.renderOnly("Hull");
-		GL11.glEndList();
->>>>>>> origin/feature/nuclearthermalrockets
 	}
 
 	@Override
@@ -65,7 +51,7 @@ public class RendererRollingMachine extends TileEntityRenderer<TileRollingMachin
 		Direction front = RotatableBlock.getFront(tile.getWorld().getBlockState(tile.getPos())); //tile.getWorldObj().getBlockMetadata(tile.xCoord, tile.yCoord, tile.zCoord));
 
 		matrix.rotate(new Quaternion(0, (front.getXOffset() == 1 ? 180 : 0) + front.getZOffset()*90f, 0, true));
-		matrix.translate(-.5f, -1f, -1.5f);
+		matrix.translate(-.5f, 0f, -1.5f);
 		IVertexBuilder entitySolidBuilder = buffer.getBuffer(RenderHelper.getSolidEntityModelRenderType(texture));
 		
 		IVertexBuilder entityNoTex;
@@ -77,40 +63,39 @@ public class RendererRollingMachine extends TileEntityRenderer<TileRollingMachin
 			model.renderOnly(matrix, combinedLightIn, combinedOverlayIn, entitySolidBuilder, "Hull");
 			matrix.push();
 			matrix.translate(1.375f, 0.6875f, 0);
-			matrix.rotate(new Quaternion(-progress*720,0,0, true));
-			model.renderOnly(matrix, combinedLightIn, combinedOverlayIn, entitySolidBuilder, "Roller1");
+			matrix.rotate(new Quaternion(0,0,-progress*720, true));
+			model.renderOnly(matrix, combinedLightIn, combinedOverlayIn, entitySolidBuilder, "roller_1");
 			matrix.pop();
 
 			matrix.push();
 			matrix.translate(1.9375f, 0.6875f, 0f);
-			matrix.rotate(new Quaternion(-progress*720,0,0, true));
-			model.renderOnly(matrix, combinedLightIn, combinedOverlayIn, entitySolidBuilder, "Roller2");
+			matrix.rotate(new Quaternion(0,0,-progress*720, true));
+			model.renderOnly(matrix, combinedLightIn, combinedOverlayIn, entitySolidBuilder, "roller_2");
 			matrix.pop();
 
 			matrix.push();
 			matrix.translate(1.625f + 0.03125f, 1.125f,0f);
-			matrix.rotate(new Quaternion(-progress*720,0,0, true));
-			model.renderOnly(matrix, combinedLightIn, combinedOverlayIn, entitySolidBuilder, "Roller2");
+			matrix.rotate(new Quaternion(0,0,progress*720, true));
+			model.renderOnly(matrix, combinedLightIn, combinedOverlayIn, entitySolidBuilder, "roller_2");
 			matrix.pop();
 		}
 		else {
 			model.renderOnly(matrix, combinedLightIn, combinedOverlayIn, entitySolidBuilder, "Hull");
 			matrix.push();
 			matrix.translate(1.375f, 0.6875f, 0);
-			model.renderOnly(matrix, combinedLightIn, combinedOverlayIn, entitySolidBuilder, "Roller1");
+			model.renderOnly(matrix, combinedLightIn, combinedOverlayIn, entitySolidBuilder, "roller_1");
 			matrix.pop();
 
 			matrix.push();
 			matrix.translate(1.9375f, 0.6875f,0f);
-			model.renderOnly(matrix, combinedLightIn, combinedOverlayIn, entitySolidBuilder, "Roller2");
+			model.renderOnly(matrix, combinedLightIn, combinedOverlayIn, entitySolidBuilder, "roller_2");
 			matrix.pop();
 
 			matrix.push();
 
 			matrix.translate(1.625f + 0.03125f, 1.125f,0f);
-			matrix.rotate(new Quaternion(15f, 0,0,true));
 
-			model.renderOnly(matrix, combinedLightIn, combinedOverlayIn, entitySolidBuilder, "Roller2");
+			model.renderOnly(matrix, combinedLightIn, combinedOverlayIn, entitySolidBuilder, "roller_2");
 			matrix.pop();
 
 		}

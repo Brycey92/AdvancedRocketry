@@ -45,6 +45,32 @@ public class RendererPhantomBlock extends TileEntityRenderer<TileSchematic> {
 			GL11.glDisable(GL11.GL_BLEND);
 		}*/
 
+		//TODO: bring tags back
+		if(state != null) {
+			//If the player is mousing over this block
+			RayTraceResult movingObjPos = Minecraft.getInstance().objectMouseOver;
+			try {
+				if(movingObjPos.getType() == Type.BLOCK)
+				{
+					BlockRayTraceResult result = (BlockRayTraceResult)movingObjPos;
+
+					matrix.push();
+					matrix.translate(0.5, 1.5, 0.5);
+					if(Minecraft.getInstance().objectMouseOver != null && result.getPos().getX() == tile.getPos().getX() && result.getPos().getY() == tile.getPos().getY() && result.getPos().getZ() == tile.getPos().getZ()) {
+
+						ItemStack stack = tile.getWorld().getBlockState(tile.getPos()).getBlock().getPickBlock(tile.getWorld().getBlockState(tile.getPos()), movingObjPos, Minecraft.getInstance().world, tile.getPos(), Minecraft.getInstance().player);
+						if(stack == null)
+							RenderHelper.renderTag(matrix, buffer, Minecraft.getInstance().player.getDistanceSq(result.getHitVec().x, result.getHitVec().y, result.getHitVec().z), "THIS IS AN ERROR, CONTACT THE DEV!!!", 0,1);
+						else
+							RenderHelper.renderTag(matrix, buffer, Minecraft.getInstance().player.getDistanceSq(result.getHitVec().x, result.getHitVec().y, result.getHitVec().z), stack.getDisplayName().getString(), 0xf0, 1);
+					}
+					matrix.pop();
+				}
+			} catch (NullPointerException e) {
+				//silence you fool
+			}
+		}
+		
 		matrix.push();
 		//Render Each block
 
@@ -52,45 +78,11 @@ public class RendererPhantomBlock extends TileEntityRenderer<TileSchematic> {
 		IVertexBuilder blockTranslucent = buffer.getBuffer(RenderHelper.getTranslucentBlock());
 
 		IBakedModel model = renderBlocks.getModelForState(state);
-		renderBlocks.getBlockModelRenderer().renderModel(tile.getWorld(), model, state, tile.getPos(), matrix, blockTranslucent, false, tile.getWorld().getRandom(), 0, combinedOverlayIn,  net.minecraftforge.client.model.data.EmptyModelData.INSTANCE);
+		renderBlocks.getBlockModelRenderer().renderModel(tile.getWorld(), model, state, tile.getPos(), matrix, blockTranslucent, true, tile.getWorld().getRandom(), 0, combinedOverlayIn,  net.minecraftforge.client.model.data.EmptyModelData.INSTANCE);
 
 		matrix.pop();
 
 
-		//TODO: bring tags back
-		if(state != null) {
-			//If the player is mousing over this block
-			RayTraceResult movingObjPos = Minecraft.getInstance().objectMouseOver;
-			try {
-<<<<<<< HEAD
-				if(movingObjPos.getType() == Type.BLOCK)
-				{
-					BlockRayTraceResult result = (BlockRayTraceResult)movingObjPos;
-
-					matrix.push();
-					matrix.translate(0.5, 0.5, 0.5);
-					if(Minecraft.getInstance().objectMouseOver != null && result.getPos().getX() == tile.getPos().getX() && result.getPos().getY() == tile.getPos().getY() && result.getPos().getZ() == tile.getPos().getZ()) {
-
-						ItemStack stack = tile.getWorld().getBlockState(tile.getPos()).getBlock().getPickBlock(tile.getWorld().getBlockState(tile.getPos()), movingObjPos, Minecraft.getInstance().world, tile.getPos(), Minecraft.getInstance().player);
-						if(stack == null)
-							RenderHelper.renderTag(matrix, buffer, Minecraft.getInstance().player.getDistanceSq(result.getHitVec().x, result.getHitVec().y, result.getHitVec().z), "THIS IS AN ERROR, CONTACT THE DEV!!!", 0,1);
-						else
-							RenderHelper.renderTag(matrix, buffer, Minecraft.getInstance().player.getDistanceSq(result.getHitVec().x, result.getHitVec().y, result.getHitVec().z), stack.getDisplayName().getString(), combinedOverlayIn + (combinedLightIn << 16), 1);
-					}
-					matrix.pop();
-=======
-				if(Minecraft.getMinecraft().objectMouseOver != null && movingObjPos.getBlockPos().getX() == tile.getPos().getX() && movingObjPos.getBlockPos().getY() == tile.getPos().getY() && movingObjPos.getBlockPos().getZ() == tile.getPos().getZ()) {
-
-					ItemStack stack = tile.getWorld().getBlockState(tile.getPos()).getBlock().getPickBlock(tile.getWorld().getBlockState(tile.getPos()), movingObjPos, Minecraft.getMinecraft().world, tile.getPos(), Minecraft.getMinecraft().player);
-					if(stack.isEmpty())
-						RenderHelper.renderTag(Minecraft.getMinecraft().player.getDistanceSq(movingObjPos.hitVec.x, movingObjPos.hitVec.y, movingObjPos.hitVec.z), "THIS IS AN ERROR, CONTACT THE DEV!!!", x,y,z, 10);
-					else
-						RenderHelper.renderTag(Minecraft.getMinecraft().player.getDistanceSq(movingObjPos.hitVec.x, movingObjPos.hitVec.y, movingObjPos.hitVec.z), stack.getDisplayName(), x+ 0.5f,y,z+ 0.5f, 10);
->>>>>>> origin/feature/nuclearthermalrockets
-				}
-			} catch (NullPointerException e) {
-				//silence you fool
-			}
-		}
+		
 	}
 }

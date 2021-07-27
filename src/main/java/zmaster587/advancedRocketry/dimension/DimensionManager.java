@@ -1,27 +1,15 @@
 package zmaster587.advancedRocketry.dimension;
 
-import net.minecraft.fluid.Fluid;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.ListNBT;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.registry.DynamicRegistries;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.world.Dimension;
 import net.minecraft.world.DimensionType;
 import net.minecraft.world.World;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.biome.Biomes;
-import net.minecraft.world.biome.ColumnFuzzedBiomeMagnifier;
-import net.minecraft.world.biome.provider.SingleBiomeProvider;
-import net.minecraft.world.gen.ChunkGenerator;
-import net.minecraft.world.gen.DimensionSettings;
-import net.minecraft.world.gen.settings.DimensionStructuresSettings;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraft.world.storage.FolderName;
 import net.minecraftforge.common.util.Constants.NBT;
@@ -29,12 +17,10 @@ import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.thread.EffectiveSide;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.output.ByteArrayOutputStream;
 
 //import com.google.common.io.Files;
 
 import zmaster587.advancedRocketry.AdvancedRocketry;
-import zmaster587.advancedRocketry.api.AdvancedRocketryAPI;
 import zmaster587.advancedRocketry.api.AdvancedRocketryBiomes;
 import zmaster587.advancedRocketry.api.AdvancedRocketryBlocks;
 import zmaster587.advancedRocketry.api.AdvancedRocketryFluids;
@@ -54,15 +40,6 @@ import zmaster587.advancedRocketry.util.PlanetaryTravelHelper;
 import zmaster587.advancedRocketry.util.FluidGasGiantGas;
 import zmaster587.advancedRocketry.util.SpawnListEntryNBT;
 import zmaster587.advancedRocketry.util.XMLPlanetLoader;
-import zmaster587.advancedRocketry.util.XMLPlanetLoader.DimensionPropertyCoupling;
-import zmaster587.advancedRocketry.world.ChunkProviderAsteroids;
-import zmaster587.advancedRocketry.world.ChunkProviderPlanet;
-import zmaster587.advancedRocketry.world.ChunkProviderSpace;
-import zmaster587.advancedRocketry.world.CustomPlanetBiomeProvider;
-import zmaster587.advancedRocketry.world.ModdedDimensionType;
-import zmaster587.advancedRocketry.world.provider.WorldProviderAsteroid;
-import zmaster587.advancedRocketry.world.provider.WorldProviderPlanet;
-import zmaster587.advancedRocketry.world.provider.WorldProviderSpace;
 import zmaster587.libVulpes.network.PacketHandler;
 import zmaster587.libVulpes.util.ZUtils;
 
@@ -71,29 +48,22 @@ import java.io.*;
 import java.nio.file.Files;
 import java.util.*;
 import java.util.Map.Entry;
-import java.util.function.Supplier;
 import java.util.zip.GZIPOutputStream;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 
 public class DimensionManager implements IGalaxy {
-	
+
 	//TODO: fix satellites not unloading on disconnect
 	private Random random;
 	public static final String workingPath = "advRocketry";
 	public static final String tempFile = "/ARdata.dat";
 	public static final String worldXML = "/planetDefs.xml";
-<<<<<<< HEAD
 	public static final String datapackPath = "datapacks";
 	private boolean hasBeenInitialized = false;
-=======
-	public static final DimensionType PlanetDimensionType = DimensionType.register("planet", "planet", 2, WorldProviderPlanet.class, false);
-	public static final DimensionType spaceDimensionType = DimensionType.register("space", "space", 3, WorldProviderSpace.class, false);
-	public static final DimensionType AsteroidDimensionType = DimensionType.register("asteroid", "asteroid", 4, WorldProviderAsteroid.class, false);
-	private boolean hasBeenInitialized = false;
->>>>>>> origin/feature/nuclearthermalrockets
 	public static String prevBuild;
+	private static boolean firstSave = true; // First time the world is saved?
 
 	//Stat tracking
 	public static boolean hasReachedMoon;
@@ -111,7 +81,7 @@ public class DimensionManager implements IGalaxy {
 	public static DimensionProperties overworldProperties;
 	//the default property for any dimension created in space, normally, space over earth
 	public static DimensionProperties defaultSpaceDimensionProperties;
-	
+
 	public static DimensionProperties warpDimensionProperties;
 
 	public static DimensionManager getInstance() {
@@ -136,7 +106,7 @@ public class DimensionManager implements IGalaxy {
 		overworldProperties.setName("Earth");
 		overworldProperties.isNativeDimension = false;
 		overworldProperties.setStar(sol);
-		
+
 		defaultSpaceDimensionProperties = new DimensionProperties(SpaceObjectManager.WARPDIMID, false);
 		defaultSpaceDimensionProperties.setAtmosphereDensityDirect(0);
 		defaultSpaceDimensionProperties.averageTemperature = 0;
@@ -147,7 +117,7 @@ public class DimensionManager implements IGalaxy {
 		defaultSpaceDimensionProperties.fogColor = new float[] {0f,0f,0f};
 		//defaultSpaceDimensionProperties.setParentPlanet(overworldProperties,false);
 		defaultSpaceDimensionProperties.orbitalDist = 1;
-		
+
 		warpDimensionProperties = new DimensionProperties(SpaceObjectManager.WARPDIMID, false);
 		warpDimensionProperties.setAtmosphereDensityDirect(0);
 		warpDimensionProperties.averageTemperature = 0;
@@ -176,20 +146,20 @@ public class DimensionManager implements IGalaxy {
 	public ResourceLocation[] getLoadedDimensions() {
 		return getRegisteredDimensions();
 	}
-	
+
 	public boolean isSpaceDimension(ResourceLocation dimid)
 	{
 		if(dimid == null)
 			return false;
-		
+
 		return dimid.equals(ARConfiguration.GetSpaceDimId());
 	}
-	
+
 	public boolean isSpaceDimension(World dimid)
 	{
 		if(dimid == null)
 			return false;
-		
+
 		return isSpaceDimension(ZUtils.getDimensionIdentifier(dimid));
 	}
 
@@ -225,9 +195,8 @@ public class DimensionManager implements IGalaxy {
 		}
 		return null;
 	}
-	
+
 	/**
-	 * @param satId long id of the satellite
 	 * @return a reference to the satellite object with the supplied ID
 	 */
 	public Collection<SatelliteBase> getSatellites() {
@@ -235,7 +204,7 @@ public class DimensionManager implements IGalaxy {
 		//Hack to allow monitoring stations to properly reload after a server restart
 		//Because there should never be a tile in the world where no planets have been generated load file first
 		//Worst thing that can happen is there is no file and it gets genned later and the monitor does not reconnect
-		if(!hasBeenInitiallized && EffectiveSide.get().isServer() ) {
+		if(!hasBeenInitialized && EffectiveSide.get().isServer() ) {
 			DimensionManager.getInstance().loadDimensions(ServerLifecycleHooks.getCurrentServer().func_240776_a_(new FolderName(DimensionManager.workingPath)).toString());
 		}
 
@@ -459,24 +428,18 @@ public class DimensionManager implements IGalaxy {
 	 * @param dimId dimension id to check
 	 * @return true if it can be traveled to, in general if it has a surface
 	 */
-<<<<<<< HEAD
 	public boolean canTravelTo(ResourceLocation dimId){
-		
-		return ZUtils.isWorldRegistered(dimId) && getDimensionProperties(dimId).hasSurface();
+		return isDimensionCreated(dimId) && getDimensionProperties(dimId).hasSurface();
 	}
-	
+
 	/**
 	 * 
 	 * @param dimId dimension id to check
 	 * @return true if it can be traveled to, in general if it has a surface
 	 */
 	public boolean canTravelTo(ServerWorld dimId){
-		
+
 		return getDimensionProperties(ZUtils.getDimensionIdentifier(dimId)).hasSurface();
-=======
-	public boolean canTravelTo(int dimId) {
-		return net.minecraftforge.common.DimensionManager.isDimensionRegistered(dimId) && dimId != Constants.INVALID_PLANET && getDimensionProperties(dimId).hasSurface();
->>>>>>> origin/feature/nuclearthermalrockets
 	}
 
 	/**
@@ -496,14 +459,14 @@ public class DimensionManager implements IGalaxy {
 	{
 		//Getting real sick of my planet file getting toasted during debug...
 		final File saveDir = ServerLifecycleHooks.getCurrentServer().func_240776_a_(FolderName.DOT).toFile();
-		
+
 		String fileContents = properties.generateDimJSON();
-		
-		
+
+
 		File file = new File(saveDir, DimensionManager.datapackPath + "/ar_datapack/data/" + properties.getId().getNamespace() + "/dimension/" + properties.getId().getPath() + ".json");
 		File dir = new File(saveDir, DimensionManager.datapackPath + "/ar_datapack/data/" + properties.getId().getNamespace() + "/dimension");
 		File mcMeta = new File(saveDir, DimensionManager.datapackPath + "/ar_datapack/pack.mcmeta");
-		
+
 		if(!dir.exists())
 			dir.mkdirs();
 		if(!mcMeta.exists())
@@ -521,13 +484,13 @@ public class DimensionManager implements IGalaxy {
 		}
 		if(!file.exists())
 			file.createNewFile();
-		
+
 
 		File tmpFile = File.createTempFile("dimprops", ".DAT", saveDir);
 		FileOutputStream fileString = new FileOutputStream(tmpFile);
 		PrintWriter tmpFileOut = new PrintWriter(fileString);
 		try {
-			
+
 			tmpFileOut.print(fileContents);
 
 			//Open in append mode to make sure the file syncs, hacky AF
@@ -543,16 +506,14 @@ public class DimensionManager implements IGalaxy {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * Attempts to register a dimension without sending an update to the client
 	 * @param properties {@link DimensionProperties} to register
 	 * @param registerWithForge if true also registers the dimension with forge
 	 * @return true if the dimension has NOT been registered before, false if the dimension IS registered exist already
 	 */
-<<<<<<< HEAD
 	public boolean registerDimNoUpdate(DimensionProperties properties, boolean registerWithForge) {
-<<<<<<< HEAD
 		ResourceLocation dimId = properties.getId();
 
 		if(dimensionListResource.containsKey(dimId))
@@ -560,10 +521,10 @@ public class DimensionManager implements IGalaxy {
 
 		//Avoid registering gas giants as dimensions
 		//if(registerWithForge && properties.hasSurface() && !ZUtils.isWorldRegistered(dimId)) {
-			/*if(properties.isAsteroid())
+		/*if(properties.isAsteroid())
 			{
 				DimensionType dimType = new ModdedDimensionType(OptionalLong.empty(), true, false, false, true, 1.0D, false, false, true, false, true, 256, ColumnFuzzedBiomeMagnifier.INSTANCE, BlockTags.INFINIBURN_OVERWORLD.getName(), dimId, 0.0F);
-				
+
 				long seed = 0;
 				ChunkGenerator chunks = new ChunkProviderAsteroids(new SingleBiomeProvider( AdvancedRocketryBiomes.getBiomeFromResourceLocation(Biomes.THE_END.getRegistryName())), seed, () -> {
 		             return DynamicRegistries.Impl.func_239770_b_().func_230521_a_(Registry.field_243549_ar).get().getOrDefault(DimensionSettings.field_242734_c .getLocation());
@@ -571,37 +532,22 @@ public class DimensionManager implements IGalaxy {
 				Dimension dimension = new Dimension(() -> dimType, chunks);
 				ZUtils.registerDimension(dimId, dimType, dimension);
 			}
-=======
-=======
-	public boolean registerDimNoUpdate(@Nonnull DimensionProperties properties, boolean registerWithForge) {
->>>>>>> origin/feature/nuclearthermalrockets
-		int dimId = properties.getId();
-
-		if(dimensionList.containsKey(dimId))
-			return false;
-
-		//Avoid registering gas giants as dimensions
-		if(registerWithForge && properties.hasSurface() && !net.minecraftforge.common.DimensionManager.isDimensionRegistered(dimId)) {
-
-			if(properties.isAsteroid())
-				net.minecraftforge.common.DimensionManager.registerDimension(dimId, AsteroidDimensionType);
->>>>>>> origin/feature/nuclearthermalrockets
 			else
 			{
 				DimensionType dimType = new ModdedDimensionType(OptionalLong.empty(), true, false, false, true, 1.0D, false, false, true, false, true, 256, ColumnFuzzedBiomeMagnifier.INSTANCE, BlockTags.INFINIBURN_OVERWORLD.getName(), dimId, 0.0F);
-				
+
 				Registry<Biome> biomes = AdvancedRocketryBiomes.getBiomeRegistry();
 				long seed = 0;
 				List<Supplier<Biome>> biomeSupplierList = new LinkedList<Supplier<Biome>>();
-				
+
 				properties.getBiomes().forEach((i) -> { biomeSupplierList.add(() -> { return i;}); } );
-				
+
 				ChunkGenerator chunks = new ChunkProviderPlanet(new CustomPlanetBiomeProvider(seed, false, false, biomes, biomeSupplierList, properties.hasRivers()), seed, () -> {
 		             return DynamicRegistries.Impl.func_239770_b_().func_230521_a_(Registry.field_243549_ar).get().getOrDefault(DimensionSettings.field_242734_c.getLocation());
 		          }, properties);
 				Dimension dimension = new Dimension(() -> dimType, chunks);
-				
-				
+
+
 				ZUtils.registerDimension(dimId, dimType, dimension);
 			}*/
 		//}
@@ -609,16 +555,16 @@ public class DimensionManager implements IGalaxy {
 
 		return true;
 	}
-	
+
 	public void registerSpaceDimension(ResourceLocation dimId)
 	{
 		defaultSpaceDimensionProperties.setId(dimId);
 		/*DimensionType dimType = new ModdedDimensionType(OptionalLong.empty(), true, false, false, true, 1.0D, false, false, true, false, true, 256, ColumnFuzzedBiomeMagnifier.INSTANCE, BlockTags.INFINIBURN_OVERWORLD.getName(), dimId, 0.0F);
-		
+
 		long seed = 0;
 		ChunkGenerator chunks = new ChunkProviderSpace(new SingleBiomeProvider( AdvancedRocketryBiomes.spaceBiome), new DimensionStructuresSettings(false));
 		Dimension dimension = new Dimension(() -> dimType, chunks);
-		
+
 		ZUtils.registerDimension(dimId, dimType, dimension);*/
 	}
 
@@ -683,7 +629,7 @@ public class DimensionManager implements IGalaxy {
 		dimensionListResource.remove(dimId);
 
 		//Delete World Folder
-		
+
 		File file = ServerLifecycleHooks.getCurrentServer().func_240776_a_(new FolderName(workingPath + "/DIM" + dimId)).toFile();
 
 		try {
@@ -709,48 +655,48 @@ public class DimensionManager implements IGalaxy {
 
 	/**
 	 * 
-	 * @param dimId id of the dimention of which to get the properties
+	 * @param resourceLocation id of the dimention of which to get the properties
 	 * @return DimensionProperties representing the dimId given
 	 */
 	public DimensionProperties getDimensionProperties(ResourceLocation resourceLocation)
 	{
 		if(SpaceObjectManager.WARPDIMID.equals(resourceLocation))
 			return warpDimensionProperties;
-		
+
 		if(isStar(resourceLocation)) {
 			DimensionProperties starProps = new DimensionProperties(resourceLocation);;
 			starProps.setStar(resourceLocation);
 			starProps.setName(starProps.getStar().getName());
 			return starProps;
 		}
-		
+
 		DimensionProperties properties = dimensionListResource.get(resourceLocation);
 		if(ARConfiguration.GetSpaceDimId().equals(resourceLocation) || resourceLocation == null) {
 			return defaultSpaceDimensionProperties;
 		}
 		return properties == null ? overworldProperties : properties;
 	}
-	
+
 	public DimensionProperties getDimensionProperties(ResourceLocation resourceLocation, BlockPos pos)
 	{
-		
+
 		if(ARConfiguration.GetSpaceDimId().equals(resourceLocation)) {
 			ISpaceObject obj = SpaceObjectManager.getSpaceManager().getSpaceStationFromBlockCoords(pos);
 			if(obj == null)
 				return defaultSpaceDimensionProperties;
-			
+
 			return (DimensionProperties) obj.getProperties();
 		}
 		DimensionProperties properties = dimensionListResource.get(resourceLocation);
 		return properties == null ? overworldProperties : properties;
-		
+
 	}
-	
+
 	public DimensionProperties getDimensionProperties(World world)
 	{
 		return getDimensionProperties(ZUtils.getDimensionIdentifier(world));
 	}
-	
+
 	public DimensionProperties getDimensionProperties(World world, BlockPos pos)
 	{
 		return getDimensionProperties(ZUtils.getDimensionIdentifier(world), pos);
@@ -770,7 +716,7 @@ public class DimensionManager implements IGalaxy {
 	public Set<ResourceLocation> getStarIds() {
 		return starList.keySet();
 	}
-	
+
 	public boolean isStar(ResourceLocation id) {
 		return starList.keySet().contains(id);
 	}
@@ -814,22 +760,7 @@ public class DimensionManager implements IGalaxy {
 		//Save SolarSystems first
 
 		//Save satelliteId
-<<<<<<< HEAD
 		nbt.putLong("nextSatelliteId", nextSatelliteId);
-=======
-		nbt.setLong("nextSatelliteId", nextSatelliteId);
-
-		//Save Overworld
-		for(Entry<Integer, DimensionProperties> dimSet : dimensionList.entrySet()) {
-
-			NBTTagCompound dimNbt = new NBTTagCompound();
-			dimSet.getValue().writeToNBT(dimNbt);
-
-			dimListnbt.setTag(dimSet.getKey().toString(), dimNbt);
-		}
-
-		nbt.setTag("dimList", dimListnbt);
->>>>>>> origin/feature/nuclearthermalrockets
 
 		//Stats
 		CompoundNBT stats = new CompoundNBT();
@@ -844,43 +775,33 @@ public class DimensionManager implements IGalaxy {
 		String xmlOutput = XMLPlanetLoader.writeXML(this);
 
 		try {
-<<<<<<< HEAD
 			File planetXMLOutput = new File(saveDir, filePath + worldXML);
-			
+
 			File advRocketrySaveDir = new File(saveDir, filePath);
 			if(!advRocketrySaveDir.exists())
 				advRocketrySaveDir.mkdirs();
-			
+
 			if(!planetXMLOutput.exists())
 				planetXMLOutput.createNewFile();
 
 			File tmpFileXml = File.createTempFile("ARXMLdata_", ".DAT", saveDir);
 			FileOutputStream bufoutStream = new FileOutputStream(tmpFileXml);
 			bufoutStream.write(xmlOutput.getBytes());
-=======
-			File planetXMLOutput = new File(net.minecraftforge.common.DimensionManager.getCurrentSaveRootDirectory(), filePath + worldXML);
-			planetXMLOutput.createNewFile();
-
-			File tmpFileXml = File.createTempFile("ARXMLdata_", ".DAT", net.minecraftforge.common.DimensionManager.getCurrentSaveRootDirectory());
-			FileOutputStream bufOutStream = new FileOutputStream(tmpFileXml);
-			bufOutStream.write(xmlOutput.getBytes());
->>>>>>> origin/feature/nuclearthermalrockets
 
 			//Commit to OS, tell OS to commit to disk, release and close stream
-			bufOutStream.flush();
-			bufOutStream.getFD().sync();
-			bufOutStream.close();
+			bufoutStream.flush();
+			bufoutStream.getFD().sync();
+			bufoutStream.close();
 
 			//Temp file was written OK, commit
 			Files.copy(tmpFileXml.toPath(), planetXMLOutput.toPath(), REPLACE_EXISTING);
 			tmpFileXml.delete();
 
-<<<<<<< HEAD
 			File file = new File(saveDir, filePath + tempFile);
 
 			if(!file.exists())
 				file.createNewFile();
-			
+
 			//satellites
 			ListNBT satelliteNbt = new ListNBT();
 			for(SatelliteBase sat : getSatellites())
@@ -890,10 +811,6 @@ public class DimensionManager implements IGalaxy {
 				satelliteNbt.add(satTag);
 			}
 			nbt.put("satellites", satelliteNbt);
-=======
-			File file = new File(net.minecraftforge.common.DimensionManager.getCurrentSaveRootDirectory(), filePath + tempFile);
-			file.createNewFile();
->>>>>>> origin/feature/nuclearthermalrockets
 
 			//Getting real sick of my planet file getting toasted during debug...
 			File tmpFile = File.createTempFile("dimprops", ".DAT", saveDir);
@@ -916,14 +833,32 @@ public class DimensionManager implements IGalaxy {
 				e.printStackTrace();
 			}
 
-
-			
-			// Save dimension to datapacks
-			for(ResourceLocation location : getRegisteredDimensions())
+			// Save dimension datapacks
+			//TODO: replace with actually loading the dimensions up from the advanced rocketry config
+			if(firstSave)
 			{
-				DimensionProperties properties = getDimensionProperties(location);
-				if(properties.isNativeDimension)
-				writeDimAsJSON(properties);
+				firstSave = false;
+				new Thread(
+				new Runnable() {
+					@Override
+					public void run() {
+						// Save dimension to datapacks
+						for(ResourceLocation location : getRegisteredDimensions())
+						{
+							try {
+								DimensionProperties properties = getDimensionProperties(location);
+								if(properties.isNativeDimension)
+									writeDimAsJSON(properties);
+							}
+							catch(IOException e )
+							{
+								AdvancedRocketry.logger.error("Cannot save advanced rocketry planet files, you may be able to find backups in " + saveDir);
+								e.printStackTrace();
+							}
+						}
+
+					}
+				}).start();
 			}
 
 		} catch (IOException e) {
@@ -943,7 +878,7 @@ public class DimensionManager implements IGalaxy {
 	public boolean isDimensionCreated( World dimId) {
 		return isDimensionCreated(ZUtils.getDimensionIdentifier(dimId));
 	}
-	
+
 	private List<DimensionProperties> generateRandomPlanets(StellarBody star, int numRandomGeneratedPlanets, int numRandomGeneratedGasGiants) {
 		List<DimensionProperties> dimPropList = new LinkedList<>();
 
@@ -1015,13 +950,13 @@ public class DimensionManager implements IGalaxy {
 
 		return dimPropList;
 	}
-	
+
 	public void createAndLoadDimensions(boolean resetFromXml)
 	{
 		//Load planet files
 		//Note: loading this modifies dimOffset
 		int dimOffset =0;
-		DimensionPropertyCoupling dimCouplingList = null;
+		XMLPlanetLoader.DimensionPropertyCoupling dimCouplingList = null;
 		XMLPlanetLoader loader = null;
 		boolean loadedFromXML = false;
 		File file;
@@ -1075,7 +1010,6 @@ public class DimensionManager implements IGalaxy {
 			try {
 				if(loader.loadFile(file)) {
 					dimCouplingList = loader.readAllPlanets();
-					DimensionManager.dimOffset += dimCouplingList.dims.size();
 				}
 				else {
 					loadSuccessful = false;
@@ -1091,8 +1025,8 @@ public class DimensionManager implements IGalaxy {
 			}
 		}
 		//End load planet files
-		
-		
+
+
 		if(dimCouplingList != null)
 		{
 			//Register new stars
@@ -1215,14 +1149,14 @@ public class DimensionManager implements IGalaxy {
 					dimensionProperties.addBiome(AdvancedRocketryBiomes.moonBiomeDark);
 
 					dimensionProperties.setParentPlanet(DimensionManager.overworldProperties);
-                    dimensionProperties.setStar(DimensionManager.getInstance().getStar(0));
+                    dimensionProperties.setStar(DimensionManager.getInstance().getStar(new ResourceLocation(Constants.STAR_NAMESPACE, "0")));
 					dimensionProperties.isNativeDimension = !ModList.get().isLoaded("GalacticraftCore");
 					dimensionProperties.initDefaultAttributes();
 
 					DimensionManager.getInstance().registerDimNoUpdate(dimensionProperties, !ModList.get().isLoaded("GalacticraftCore"));
 				}
 
-				generateRandomPlanets(DimensionManager.getInstance().getStar(0), numRandomGeneratedPlanets, numRandomGeneratedGasGiants);
+				generateRandomPlanets(DimensionManager.getInstance().getStar(new ResourceLocation(Constants.STAR_NAMESPACE, "0")), numRandomGeneratedPlanets, numRandomGeneratedGasGiants);
 
 				StellarBody star = new StellarBody();
 				star.setTemperature(10);
@@ -1288,60 +1222,6 @@ public class DimensionManager implements IGalaxy {
 
 		//Attempt to load ore config from adv planet XML
 		if(dimCouplingList != null) {
-<<<<<<< HEAD
-=======
-			//Register new stars
-			for(StellarBody star : dimCouplingList.stars) {
-				if(DimensionManager.getInstance().getStar(star.getId()) == null)
-					DimensionManager.getInstance().addStar(star);
-
-				DimensionManager.getInstance().getStar(star.getId()).setName(star.getName());
-				DimensionManager.getInstance().getStar(star.getId()).setPosX(star.getPosX());
-				DimensionManager.getInstance().getStar(star.getId()).setPosZ(star.getPosZ());
-				DimensionManager.getInstance().getStar(star.getId()).setSize(star.getSize());
-				DimensionManager.getInstance().getStar(star.getId()).setTemperature(star.getTemperature());
-				DimensionManager.getInstance().getStar(star.getId()).subStars = star.subStars;
-				DimensionManager.getInstance().getStar(star.getId()).setBlackHole(star.isBlackHole());
-			}
-
-			for(DimensionProperties properties : dimCouplingList.dims) {
-
-				//Register dimensions loaded by other mods if not already loaded
-				if(!properties.isNativeDimension && properties.getStar() != null && !DimensionManager.getInstance().isDimensionCreated(properties.getId())) {
-					for(StellarBody star : dimCouplingList.stars) {
-						for(StellarBody loadedStar : DimensionManager.getInstance().getStars()) {
-							if(star.getId() == properties.getStarId() && star.getName().equals(loadedStar.getName())) {
-								DimensionManager.getInstance().registerDimNoUpdate(properties, false);
-								properties.setStar(loadedStar);
-							}
-						}
-					}
-				}
-
-				
-				if(loadedPlanets.containsKey(properties.getId()))
-				{
-					DimensionProperties loadedDim = (DimensionProperties)loadedPlanets.get(properties.getId());
-					if(loadedDim != null)
-					{
-						properties.copySatellites(loadedDim);
-						properties.copyTerraformedBiomes(loadedDim);
-					}
-				}
-				if(properties.isNativeDimension)
-					DimensionManager.getInstance().registerDim(properties, properties.isNativeDimension);
-				//TODO: add properties fromXML
-
-
-				if(properties.oreProperties != null) {
-					DimensionProperties loadedProps = DimensionManager.getInstance().getDimensionProperties(properties.getId());
-
-					if(loadedProps != null)
-						loadedProps.oreProperties = properties.oreProperties;
-				}
-			}
-
->>>>>>> origin/feature/nuclearthermalrockets
 			//Don't load random planets twice on initial load
 			//TODO: rework the logic, low priority because low time cost and one time run per world
 			if(!loadedFromXML)
@@ -1358,26 +1238,17 @@ public class DimensionManager implements IGalaxy {
 		// make sure to set dim offset back to original to make things consistant
 
 		DimensionManager.getInstance().knownPlanets.addAll(zmaster587.advancedRocketry.api.ARConfiguration.getCurrentConfig().initiallyKnownPlanets);
-		
-		
+
+
 		// Run all sanity checks now
 		//Try to fix invalid objects
 		for(ISpaceObject spaceObject : SpaceObjectManager.getSpaceManager().getSpaceObjects())
 		{
-<<<<<<< HEAD
 			ResourceLocation orbitingId = spaceObject.getOrbitingPlanetId();
 			if(!isDimensionCreated(orbitingId) && !SpaceObjectManager.WARPDIMID.equals(orbitingId) && orbitingId.getNamespace().equals(Constants.PLANET_NAMESPACE))
 			{
 				AdvancedRocketry.logger.warn("Dimension ID " + spaceObject.getOrbitingPlanetId() + " is not registered and a space station is orbiting it, moving to dimid 0");
                 spaceObject.setOrbitingBody(defaultSpaceDimensionProperties.getId());
-=======
-			int orbitingId = spaceObject.getOrbitingPlanetId();
-			if(!isDimensionCreated(orbitingId) && orbitingId != 0 && orbitingId != SpaceObjectManager.WARPDIMID && orbitingId < Constants.STAR_ID_OFFSET) {
-				AdvancedRocketry.logger.warn("Dimension ID " + spaceObject.getOrbitingPlanetId() + " is not registered and a space station is orbiting it, moving to dimid 0");
-				SpaceObjectManager.getSpaceManager().moveStationToBody(spaceObject, 0);
-				spaceObject.setDestOrbitingBody(0);
-				spaceObject.setOrbitingBody(0);
->>>>>>> origin/feature/nuclearthermalrockets
 			}
 		}
 	}
@@ -1387,7 +1258,7 @@ public class DimensionManager implements IGalaxy {
 	 * @param filePath file path from which to load the information
 	 */
 	public Map<ResourceLocation,IDimensionProperties> loadDimensions(String filePath) {
-		hasBeenInitiallized = true;
+		hasBeenInitialized= true;
 		Map<ResourceLocation,IDimensionProperties> loadedDimProps = new HashMap<>();
 
 		FileInputStream inStream;
@@ -1413,73 +1284,26 @@ public class DimensionManager implements IGalaxy {
 		} catch (IOException e) {
 			e.printStackTrace();
 			return loadedDimProps;
-<<<<<<< HEAD
 		}
-		
+
 		CompoundNBT stats = nbt.getCompound("stat");
 		hasReachedMoon = stats.getBoolean("hasReachedMoon");
 		hasReachedWarp = stats.getBoolean("hasReachedWarp");
 
 		nextSatelliteId = nbt.getLong("nextSatelliteId");
 
-=======
-		}//TODO: try not to obliterate planets in the future
-
-
-		//Load SolarSystems first
-		NBTTagCompound solarSystem = nbt.getCompoundTag("starSystems");
-
-		if(solarSystem.hasNoTags())
-			return loadedDimProps;
-
-		NBTTagCompound stats = nbt.getCompoundTag("stat");
-		hasReachedMoon = stats.getBoolean("hasReachedMoon");
-		hasReachedWarp = stats.getBoolean("hasReachedWarp");
-
-		for(String key : solarSystem.getKeySet()) {
-
-			NBTTagCompound solarNBT = solarSystem.getCompoundTag(key);
-			StellarBody star = new StellarBody();
-			star.readFromNBT(solarNBT);
-			starList.put(star.getId(), star);
-		}
-
-		nbt.setTag("starSystems", solarSystem);
-
-		nextSatelliteId = nbt.getLong("nextSatelliteId");
-
-		NBTTagCompound dimListNbt = nbt.getCompoundTag("dimList");
-
-
-		for(String key : dimListNbt.getKeySet()) {
-			DimensionProperties properties = DimensionProperties.createFromNBT(Integer.parseInt(key) ,dimListNbt.getCompoundTag(key));
-
-			int keyInt = Integer.parseInt(key);
-				/*if(!net.minecraftforge.common.DimensionManager.isDimensionRegistered(keyInt) && properties.isNativeDimension && !properties.isGasGiant()) {
-					if(properties.isAsteroid())
-						net.minecraftforge.common.DimensionManager.registerDimension(keyInt, AsteroidDimensionType);
-					else
-						net.minecraftforge.common.DimensionManager.registerDimension(keyInt, PlanetDimensionType);
-				}*/
-
-			loadedDimProps.put(keyInt, properties);
-			//TODO: print unable to register world
-		}
-
-
->>>>>>> origin/feature/nuclearthermalrockets
 		//Check for tag in case old version of Adv rocketry is in use
 		if(nbt.contains("spaceObjects")) {
 			CompoundNBT nbtTag = nbt.getCompound("spaceObjects");
 			SpaceObjectManager.getSpaceManager().readFromNBT(nbtTag);
 		}
-		
+
 		ListNBT satNbtList = nbt.getList("satellites", NBT.TAG_COMPOUND);
 		for(int i = 0; i < satNbtList.size(); i++)
 		{
 			CompoundNBT satTag = satNbtList.getCompound(i);
 			SatelliteBase sat = SatelliteRegistry.createFromNBT(satTag);
-			
+
 			sat.getDimensionId().ifPresent( (r) -> { DimensionProperties dimprops; if((dimprops = getDimensionProperties(r)) != null) { dimprops.addSatellite(sat); }} );
 		}
 

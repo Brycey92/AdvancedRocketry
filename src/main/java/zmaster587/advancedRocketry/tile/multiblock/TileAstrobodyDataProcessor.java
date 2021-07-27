@@ -361,13 +361,8 @@ public class TileAstrobodyDataProcessor extends TileMultiPowerConsumer implement
 	@Override
 	public List<ModuleBase> getModules(int ID, PlayerEntity player) {
 
-<<<<<<< HEAD
 		LinkedList<ModuleBase> modules = new LinkedList<ModuleBase>();
 		modules.add( new ModulePower(18, 20, getBatteries()));
-=======
-		LinkedList<ModuleBase> modules = new LinkedList<>();
-		modules.add(new ModulePower(18, 20, getBatteries()));
->>>>>>> origin/feature/nuclearthermalrockets
 
 		//TODO: write NBT
 		for(int i = 0; i < 3; i++) {
@@ -400,7 +395,7 @@ public class TileAstrobodyDataProcessor extends TileMultiPowerConsumer implement
 		int center = 1000/2;
 
 		subModule.add(new ModuleButton(center-solarRadius/2, center-solarRadius/2, 99, "", this, new ResourceLocation[] { TextureResources.locationSunPng}, solarRadius, solarRadius));
-		DimensionProperties properties = DimensionManager.getSol().getPlanets().get(0);
+		DimensionProperties properties = DimensionManager.getInstance().getStar(new ResourceLocation(Constants.STAR_NAMESPACE, "0")).getPlanets().get(0);
 
 		subModule.add(new ModuleButton(center + properties.getMapDisplayPositionX() , center + properties.getMapDisplayPositionY(), 99, "", this, new ResourceLocation[] { properties.getPlanetIcon() }, properties.getName(), properties.getMapDisplayeSize(), properties.getMapDisplayeSize()));
 
@@ -519,20 +514,6 @@ public class TileAstrobodyDataProcessor extends TileMultiPowerConsumer implement
 	}
 
 	@Override
-<<<<<<< HEAD
-=======
-	@Nonnull
-	public String getName() {
-		return getMachineName();
-	}
-
-	@Override
-	public boolean hasCustomName() {
-		return false;
-	}
-
-	@Override
->>>>>>> origin/feature/nuclearthermalrockets
 	public int getInventoryStackLimit() {
 		return 1;
 	}

@@ -1,5 +1,6 @@
 package zmaster587.advancedRocketry.tile.multiblock.machine;
 
+import net.minecraft.block.BlockState;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
@@ -40,6 +41,11 @@ public class TileCuttingMachine extends TileMultiblockMachine implements IModula
 	}
 
 	@Override
+	public boolean shouldHideBlock(World world, BlockPos pos, BlockState tile) {
+		return true;
+	}
+	
+	@Override
 	public void tick() {
 		super.tick();
 
@@ -49,13 +55,8 @@ public class TileCuttingMachine extends TileMultiblockMachine implements IModula
 			float xCoord = this.getPos().getX() + (0.5f*back.getXOffset()); 
 			float zCoord = this.getPos().getZ() + (0.5f*back.getZOffset());
 
-<<<<<<< HEAD
 			for(Object entity : world.getEntitiesWithinAABB(LivingEntity.class, new AxisAlignedBB(xCoord, this.getPos().getY() + 1, zCoord, xCoord + 1, this.getPos().getY() + 1.5f, zCoord + 1))) {
 				((LivingEntity)entity).attackEntityFrom(DamageSource.CACTUS, 1f);
-=======
-			for(EntityLivingBase entity : world.getEntitiesWithinAABB(EntityLivingBase.class, new AxisAlignedBB(xCoord, this.getPos().getY() + 1, zCoord, xCoord + 1, this.getPos().getY() + 1.5f, zCoord + 1))) {
-				entity.attackEntityFrom(DamageSource.CACTUS, 1f);
->>>>>>> origin/feature/nuclearthermalrockets
 			}
 		}
 	}

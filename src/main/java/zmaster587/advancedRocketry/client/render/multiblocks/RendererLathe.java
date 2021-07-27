@@ -25,28 +25,15 @@ import zmaster587.libVulpes.tile.multiblock.TileMultiblockMachine;
 public class RendererLathe extends TileEntityRenderer<TileLathe> {
 	WavefrontObject model;
 
-<<<<<<< HEAD
 	ResourceLocation texture = new ResourceLocation("advancedrocketry","textures/models/lathe.png");
 
 	public RendererLathe(TileEntityRendererDispatcher tile) {
 		super(tile);
-=======
-	ResourceLocation texture = new ResourceLocation("advancedrocketry:textures/models/lathe.png");
-
-	public RendererLathe() {
->>>>>>> origin/feature/nuclearthermalrockets
 		try {
 			model = new WavefrontObject(new ResourceLocation("advancedrocketry","models/lathe.obj"));
 		} catch (ModelFormatException e) {
 			e.printStackTrace();
 		}
-<<<<<<< HEAD
-=======
-
-		GL11.glNewList(GL11.glGenLists(1), GL11.GL_COMPILE);
-		model.renderOnly("Hull");
-		GL11.glEndList();
->>>>>>> origin/feature/nuclearthermalrockets
 	}
 	
 	@Override
@@ -60,7 +47,7 @@ public class RendererLathe extends TileEntityRenderer<TileLathe> {
 		//Rotate and move the model into position
 		matrix.translate(.5f, 0, 0.5f);
 		Direction front = RotatableBlock.getFront(tile.getWorld().getBlockState(tile.getPos())); //tile.getWorldObj().getBlockMetadata(tile.xCoord, tile.yCoord, tile.zCoord));
-		matrix.rotate(new Quaternion(0, (front.getXOffset() == 1 ? 180 : 0) + front.getZOffset()*90f, 0, true));
+		matrix.rotate(new Quaternion(0, ((front.getXOffset() == 1 ? 0 : 180) + front.getZOffset()*90f), 0, true));
 		matrix.translate(-.5f, -1f, -2.5f);
 		IVertexBuilder entitySolidBuilder = buffer.getBuffer(RenderHelper.getTranslucentEntityModelRenderType(texture));
 
@@ -89,11 +76,7 @@ public class RendererLathe extends TileEntityRenderer<TileLathe> {
 
 			int color;
 			//Check for rare bug when outputs is null, usually occurs if player opens machine within 1st tick
-<<<<<<< HEAD
-			if(tile.getOutputs() != null && (outputStack = tile.getOutputs().get(0)) != null)
-=======
-			if(multiBlockTile.getOutputs() != null && !(outputStack = multiBlockTile.getOutputs().get(0)).isEmpty())
->>>>>>> origin/feature/nuclearthermalrockets
+			if(tile.getOutputs() != null && !(outputStack = tile.getOutputs().get(0)).isEmpty())
 				color = MaterialRegistry.getColorFromItemMaterial(outputStack);
 			else
 				color = 0;
@@ -113,7 +96,7 @@ public class RendererLathe extends TileEntityRenderer<TileLathe> {
 			model.renderOnly(matrix, combinedLightIn, combinedOverlayIn,  entitySolidBuilder, "Tool");
 			
 			matrix.push();
-			GL11.glTranslatef(0.375f, 0.9375f, 0f);
+			matrix.translate(0.375f, 0.9375f, 0f);
 			model.renderOnly(matrix, combinedLightIn, combinedOverlayIn,  entitySolidBuilder, "Sool");
 			matrix.pop();
 		}

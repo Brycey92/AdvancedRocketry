@@ -9,12 +9,12 @@ import zmaster587.advancedRocketry.api.IRocketNuclearCore;
 
 public class BlockNuclearCore extends Block implements IRocketNuclearCore {
 
-	public BlockNuclearCore(Material mat) {
-		super(mat);
+	public BlockNuclearCore(Properties properties) {
+		super(properties);
 	}
 
 	@Override
-	public int getMaxThrust(World world, BlockPos pos) { return (int)(1000 * ARConfiguration.getCurrentConfig().nuclearCoreThrustRatio); }
+	public int getMaxThrust(World world, BlockPos pos) { return (int)(1000 * ARConfiguration.getCurrentConfig().nuclearCoreThrustRatio.get()); }
 
 
 }

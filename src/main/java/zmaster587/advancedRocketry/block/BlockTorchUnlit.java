@@ -36,30 +36,14 @@ public class BlockTorchUnlit extends TorchBlock {
 	}
 
 	@Override
-<<<<<<< HEAD
 	public ItemStack getPickBlock(BlockState state, RayTraceResult target, IBlockReader world, BlockPos pos,
 			PlayerEntity player) {
 		return ARConfiguration.getCurrentConfig().dropExTorches.get() ? super.getPickBlock(state, target, world, pos, player) : new ItemStack(Blocks.TORCH);
-=======
-	@Nonnull
-	@ParametersAreNonnullByDefault
-	public ItemStack getPickBlock(IBlockState state, @Nullable RayTraceResult target,
-			World world, BlockPos pos, @Nullable EntityPlayer player) {
-		return ARConfiguration.getCurrentConfig().dropExTorches ? super.getPickBlock(state, target, world, pos, player) : new ItemStack(Blocks.TORCH);
->>>>>>> origin/feature/nuclearthermalrockets
 	}
 	
 	@Override
-<<<<<<< HEAD
 	public List<ItemStack> getDrops(BlockState state, Builder builder) {
 		ArrayList<ItemStack> ret = new ArrayList<ItemStack>();
-=======
-	@Nonnull
-	@ParametersAreNullableByDefault
-	public List<ItemStack> getDrops(IBlockAccess world, BlockPos pos,
-			IBlockState state, int fortune) {
-		ArrayList<ItemStack> ret = new ArrayList<>();
->>>>>>> origin/feature/nuclearthermalrockets
 
 		
 		ret.add(new ItemStack(ARConfiguration.getCurrentConfig().dropExTorches.get() ? AdvancedRocketryBlocks.blockUnlitTorch : Blocks.TORCH));
@@ -70,44 +54,11 @@ public class BlockTorchUnlit extends TorchBlock {
 	
 	
 	@Override
-<<<<<<< HEAD
-<<<<<<< HEAD
 	public ActionResultType onBlockActivated(BlockState state, World world, BlockPos pos, PlayerEntity player,
 			Hand handIn, BlockRayTraceResult hit) {
 		if(player.getHeldItem(Hand.MAIN_HAND) != null) {
 			Item item = player.getHeldItem(Hand.MAIN_HAND).getItem();
-			if(!world.isRemote && item != null && AtmosphereHandler.getOxygenHandler(world).getAtmosphereType(pos).allowsCombustion() && (item == Item.getItemFromBlock(Blocks.TORCH) || 
-=======
-	public boolean onBlockActivated(World world, BlockPos pos,
-			IBlockState state, EntityPlayer player, EnumHand hand, EnumFacing side, float hitX, float hitY,
-=======
-	public boolean onBlockActivated(@Nonnull World world, @Nonnull BlockPos pos,
-			@Nonnull IBlockState state, @Nonnull EntityPlayer player, EnumHand hand, EnumFacing side, float hitX, float hitY,
->>>>>>> origin/feature/nuclearthermalrockets
-			float hitZ) {
-
-		if(!player.getHeldItem(EnumHand.MAIN_HAND).isEmpty()) {
-			Item item = player.getHeldItem(EnumHand.MAIN_HAND).getItem();
-<<<<<<< HEAD
-			if(!world.isRemote && !item.equals(Items.AIR) && AtmosphereHandler.getOxygenHandler(world.provider.getDimension()).getAtmosphereType(pos).allowsCombustion() && (item == Item.getItemFromBlock(Blocks.TORCH) ||
->>>>>>> origin/feature/nuclearthermalrockets
-=======
-			AtmosphereHandler atmhandler = AtmosphereHandler.getOxygenHandler(world.provider.getDimension());
-
-<<<<<<< HEAD
-			if(atmhandler != null && !world.isRemote && !item.equals(Items.AIR) && atmhandler.getAtmosphereType(pos).allowsCombustion() && (item == Item.getItemFromBlock(Blocks.TORCH) ||
->>>>>>> origin/feature/nuclearthermalrockets
-					item == Items.FLINT_AND_STEEL || 
-					item == Items.FIRE_CHARGE)) {
-=======
-			if(atmhandler != null
-			&& !world.isRemote
-			&& !item.equals(Items.AIR)
-			&& atmhandler.getAtmosphereType(pos).allowsCombustion()
-			&& (item == Item.getItemFromBlock(Blocks.TORCH)
-					|| item == Items.FLINT_AND_STEEL 
-					|| item == Items.FIRE_CHARGE)) {
->>>>>>> origin/feature/nuclearthermalrockets
+			if(!world.isRemote && item != null && AtmosphereHandler.getOxygenHandler(world).getAtmosphereType(pos).allowsCombustion() && (item == Item.getItemFromBlock(Blocks.TORCH) || item == Items.FLINT_AND_STEEL || item == Items.FIRE_CHARGE)) {
 
 				world.setBlockState(pos, Blocks.TORCH.getDefaultState());
 
