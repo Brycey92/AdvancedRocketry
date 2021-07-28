@@ -2,8 +2,13 @@ package zmaster587.advancedRocketry.world.decoration;
 
 import com.mojang.serialization.Codec;
 
+import net.minecraft.util.RegistryKey;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MutableBoundingBox;
 import net.minecraft.util.registry.DynamicRegistries;
+import net.minecraft.util.registry.Registry;
+import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.gen.ChunkGenerator;
 import net.minecraft.world.gen.GenerationStage;
@@ -11,6 +16,7 @@ import net.minecraft.world.gen.feature.ProbabilityConfig;
 import net.minecraft.world.gen.feature.structure.Structure;
 import net.minecraft.world.gen.feature.structure.StructureStart;
 import net.minecraft.world.gen.feature.template.TemplateManager;
+import net.minecraftforge.common.BiomeDictionary;
 
 public class StructureGeode  extends Structure<ProbabilityConfig>  {
 
@@ -41,5 +47,16 @@ public class StructureGeode  extends Structure<ProbabilityConfig>  {
 
 	public GenerationStage.Decoration func_236396_f_() {
 		return GenerationStage.Decoration.LOCAL_MODIFICATIONS;
+	}
+
+	//Geodes should absolutely not be generating on top of liquid. That they could before was a huge oversight
+	private static boolean canGeodeGenerate(World world, int x, int z) {
+		ResourceLocation biomeName = world.getBiome(new BlockPos(x, 0, z)).getRegistryName();
+		if(biomeName == null) {
+			return false;
+		}
+		RegistryKey<Biome> biomeKey = RegistryKey.getOrCreateKey(Registry.BIOME_KEY, biomeName);
+
+		return !BiomeDictionary.hasType(biomeKey, BiomeDictionary.Type.OCEAN) && !BiomeDictionary.hasType(biomeKey, BiomeDictionary.Type.RIVER) && !BiomeDictionary.hasType(biomeKey, BiomeDictionary.Type.BEACH);
 	}
 }
