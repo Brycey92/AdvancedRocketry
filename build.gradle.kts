@@ -11,7 +11,7 @@ import java.util.TimeZone
 plugins {
     idea
     id("net.minecraftforge.gradle") version "6.+"
-    id("wtf.gofancy.fancygradle") version "1.+"
+    //id("wtf.gofancy.fancygradle") version "1.+"
     id("org.ajoberstar.grgit") version "4.1.1"
     id("com.matthewprenger.cursegradle") version "1.4.0"
     id("se.bjurr.gitchangelog.git-changelog-gradle-plugin") version "1.72.0"
@@ -101,6 +101,7 @@ minecraft {
     }
 }
 
+/*
 fancyGradle {
     patches {
         resources
@@ -109,6 +110,7 @@ fancyGradle {
         asm
     }
 }
+*/
 
 repositories {
     mavenCentral()
@@ -125,16 +127,19 @@ repositories {
         name = "ModMaven"
         url = uri("https://modmaven.k-4u.nl")
     }
+    /*
     maven {
         name = "Galacticraft"
         url = uri("https://maven.galacticraft.dev/repository/legacy-releases/")
     }
     maven {
         name = "LibVulpes"
-        url = uri("http://maven.dmodoomsirius.me/")
+        url = uri("https://jenkins.dmodoomsirius.me/")
         isAllowInsecureProtocol = true
     }
+    */
     flatDir {
+        name = "libs folder"
         dirs("libs")
     }
 }
