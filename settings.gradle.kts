@@ -13,6 +13,10 @@ pluginManagement {
             name = "FancyGradle GitHub"
             url = uri("https://gitlab.com/api/v4/projects/26758973/packages/maven")
         }
+        maven {
+            name = "Curse Maven"
+            url = uri("https://cursemaven.com")
+        }
     }
 }
 

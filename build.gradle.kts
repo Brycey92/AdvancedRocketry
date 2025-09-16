@@ -129,13 +129,20 @@ repositories {
     }
     /*
     maven {
+        // connection refused
         name = "Galacticraft"
         url = uri("https://maven.galacticraft.dev/repository/legacy-releases/")
     }
     maven {
-        name = "LibVulpes"
-        url = uri("https://jenkins.dmodoomsirius.me/")
+        // connection refused on http, wrong certificate domain on https (jenkins.dmodoomsirius.me)
+        name = "LibVulpes Maven"
+        url = uri("http://maven.dmodoomsirius.me/")
         isAllowInsecureProtocol = true
+    }
+    maven {
+        // 403 unauthorized error
+        name = "LibVulpes Jenkins"
+        url = uri("https://jenkins.dmodoomsirius.me/")
     }
     */
     flatDir {
@@ -147,14 +154,40 @@ repositories {
 dependencies {
     minecraft(group = "net.minecraftforge", name = "forge", version = "$mcVersion-$forgeVersion")
 
-    compileOnly("net.industrial-craft:industrialcraft-2:$icVersion:dev")
-    //implementation("zmaster587.libVulpes:LibVulpes:$mcVersion-$libVulpesVersion-$libVulpesBuildNum-deobf")
+    // === IC2 ===
+    // direct from repo
+    compileOnly("net.industrial-craft:industrialcraft-2:${icVersion}:dev")
+    
+    // === LibVulpes ===
+    // direct from repo, with build number and fg.deobf
+    implementation(fg.deobf("zmaster587.LibVulpes:LibVulpes:${mcVersion}-${libVulpesVersion}-${libVulpesBuildNum}"))
+    // direct from repo, with build number
+    //implementation("zmaster587.LibVulpes:LibVulpes:${mcVersion}-${libVulpesVersion}-${libVulpesBuildNum}:deobf")
+    // direct from repo, any build number
+    //implementation("zmaster587.libVulpes:libVulpes:${mcVersion}-${libVulpesVersion}+:deobf")
+    // specific file
+    //implementation files("libs/LibVulpes-${mcVersion}-${libVulpesVersion}-${libVulpesBuildNum}-deobf.jar")
 
-    compileOnly(fg.deobf("dev.galacticraft:galacticraft-legacy:$gcVersion"))
+    // === Galacticraft ===
+    // direct from repo, with fg.deobf
+    //compileOnly(fg.deobf("dev.galacticraft:galacticraft-legacy:${gcVersion}"))
+    // direct from repo with old naming scheme and fg.deobf
+    compileOnly(fg.deobf("dev.galacticraft:galacticraft:${mcVersion}-${gcVersion}"))
+    // direct from repo with old naming scheme
+    //compileOnly("dev.galacticraft:galacticraft:${mcVersion}-${gcVersion}:deobf")
+    // specific file
+    //compileOnly files("libs/Galacticraft-${mcVersion}-${gcVersion}-deobf.jar")
 
+    // === JEI ===
+    // direct from repo, with fg.deobf
     compileOnly(fg.deobf("mezz.jei:jei_${mcVersion}:${jeiVersion}:api"))
     runtimeOnly(fg.deobf("mezz.jei:jei_${mcVersion}:${jeiVersion}"))
-    implementation ("zmaster587.libVulpes:libVulpes:1.12.2-0.4.2+:deobf")
+    // direct from repo
+    //compileOnly(fg.deobf("mezz.jei:jei_${mcVersion}:${jeiVersion}:api")
+    //runtimeOnly(fg.deobf("mezz.jei:jei_${mcVersion}:${jeiVersion}")
+    // specific files
+    //compileOnly files("libs/jei_${mcVersion}-${jeiVersion}-api.jar")
+    //runtimeOnly files("libs/jei_${mcVersion}-${jeiVersion}.jar")
 }
 
 tasks.processResources {
