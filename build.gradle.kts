@@ -118,7 +118,7 @@ repositories {
     }
     ivy {
         name = "industrialcraft-2"
-        artifactPattern("http://jenkins.ic2.player.to/job/IC2_111/39/artifact/build/libs/[module]-[revision].[ext]")
+        artifactPattern("http://jenkins.ic2.player.to/job/IC2_112/170/artifact/build/libs/[module]-[revision].[ext]")
     }
     maven {
         // location of a maven mirror for JEI files, as a fallback
@@ -158,7 +158,7 @@ dependencies {
 
     // === IC2 ===
     // direct from repo
-    compileOnly("net.industrial-craft:industrialcraft-2:${icVersion}:dev")
+    //compileOnly("net.industrial-craft:industrialcraft-2:${icVersion}:dev")
 
     // === LibVulpes ===
     // direct from repo, with build number and fg.deobf

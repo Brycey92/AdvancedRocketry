@@ -16,6 +16,9 @@ pluginManagement {
         maven {
             name = "Curse Maven"
             url = uri("https://cursemaven.com")
+            content {
+                includeGroup("curse.maven")
+            }
         }
     }
 }
